@@ -4,15 +4,15 @@ import { prisma } from "~/db.server";
 
 export function getAtividade({
   id,
-}: Pick<Atividade, "id">) {
+}: Pick<Atividade, "id">) : Promise<Atividade | null>{
   return prisma.atividade.findFirst({
-    select: { id: true, dividas: true, contribuinte: true },
+    select: { id: true, dividas: true, contribuinte: true, contribuinteId: true },
     where: { id },
   });
 }
 
-export function getAtividades(){
+export function getAtividades(): Promise<Atividade[]>{
   return prisma.atividade.findMany({
-    select: { id: true, dividas: true, contribuinte: true },
+    select: { id: true, dividas: true, contribuinte: true, contribuinteId: true },
   });
 }
