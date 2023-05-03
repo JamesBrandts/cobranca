@@ -11,6 +11,12 @@ async function seed() {
     // no worries if it doesn't exist yet
   });
 
+  await prisma.contribuinte.deleteMany().catch(() => {});
+  await prisma.economia.deleteMany().catch(() => {});
+  await prisma.atividade.deleteMany().catch(() => {});
+  await prisma.divida.deleteMany().catch(() => {});
+
+
   const hashedPassword = await bcrypt.hash("racheliscool", 10);
 
   const user = await prisma.user.create({
@@ -40,8 +46,80 @@ async function seed() {
     },
   });
 
+  
+  // create a new user with a hashed password
+
+  const hashedPassword2 = await bcrypt.hash("1234567890", 10);
+
+  await prisma.user.create({
+    data: {
+      email:"admin@mail.com",
+      password: {
+        create: {
+          hash: hashedPassword2,
+        },
+      },
+    },
+  });
+
+  for (let i = 0; i < 100; i++) {
+    await prisma.contribuinte.create({
+      data: {
+        nome: `Contribuinte ${i}`,
+        cpf_cnpj: `${Math.floor(Math.random() * 100000000)}${i}`,
+        email: `contribuinte${i}@mail.com`,
+        telefone: `(51)9${Math.floor(Math.random() * 100000000)}`
+      }
+    })
+  }
+
+  const contribuintes = await prisma.contribuinte.findMany();
+  for (let contribuinte of contribuintes) {
+    const economia = await prisma.economia.create({
+      data: {
+        contribuinteId: contribuinte.id,
+      }
+    })
+    for (let i = 0; i < Math.random() * 100; i++) {
+      await prisma.divida.create({
+        data: {
+          valor: Math.floor(Math.random() * 100000),
+          contribuinteId: contribuinte.id,
+          tributo: "IPTU",
+          economiaId: economia.id,
+          exercicio: 2013 + Math.floor(Math.random() * 10),
+          parcela: Math.floor(Math.random() * 10),
+          tipo: "N"
+        }
+      })
+    }
+  }
+
+  for (let contribuinte of contribuintes) {
+    const atividade = await prisma.atividade.create({
+      data: {
+        contribuinteId: contribuinte.id,
+      }
+    })
+    for (let i = 0; i < Math.random() * 50; i++) {
+      await prisma.divida.create({
+        data: {
+          valor: Math.floor(Math.random() * 1000000),
+          contribuinteId: contribuinte.id,
+          tributo: "ISSQN",
+          atividadeId: atividade.id,
+          exercicio: 2013 + Math.floor(Math.random() * 10),
+          parcela: Math.floor(Math.random() * 10),
+          tipo: "N"
+        }
+      })
+    }
+  }
+
   console.log(`Database has been seeded. 🌱`);
 }
+
+
 
 seed()
   .catch((e) => {
