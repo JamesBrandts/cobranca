@@ -66,7 +66,7 @@ async function seed() {
     await prisma.contribuinte.create({
       data: {
         nome: `Contribuinte ${i}`,
-        cpf_cnpj: `${Math.floor(Math.random() * 100000000)}${i}`,
+        cpf_cnpj: `${Math.floor(Math.random() * 100000000000)}${i}`,
         email: `contribuinte${i}@mail.com`,
         telefone: `(51)9${Math.floor(Math.random() * 100000000)}`
       }

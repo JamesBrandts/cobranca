@@ -9,7 +9,7 @@ export function getDivida({
   contribuinteId: Contribuinte["id"];
 }) {
   return prisma.divida.findFirst({
-    select: { id: true, contribuinte: true, Economia: true, exercicio: true, parcela: true, tipo: true, tributo: true, value: true },
+    select: { id: true, contribuinte: true, Economia: true, exercicio: true, parcela: true, tipo: true, tributo: true, valor: true },
     where: { id, contribuinteId },
   });
 }
@@ -17,7 +17,7 @@ export function getDivida({
 export function getDividaPorContribuinteId({ contribuinteId }: { contribuinteId: Contribuinte["id"] }) {
   return prisma.divida.findMany({
     where: { contribuinteId },
-    select: { id: true, contribuinte: true, Economia: true, exercicio: true, parcela: true, tipo: true, tributo: true, value: true },
+    select: { id: true, contribuinte: true, Economia: true, Atividade:true, exercicio: true, parcela: true, tipo: true, tributo: true, valor: true },
     orderBy: { updatedAt: "asc" },
   });
 }
@@ -25,7 +25,7 @@ export function getDividaPorContribuinteId({ contribuinteId }: { contribuinteId:
 export function getDividaPorAtividadeId({ atividadeId }: { atividadeId: Atividade["id"] }) {
   return prisma.divida.findMany({
     where: { atividadeId },
-    select: { id: true, contribuinte: true, Economia: true, exercicio: true, parcela: true, tipo: true, tributo: true, value: true },
+    select: { id: true, contribuinte: true, Economia: true, exercicio: true, parcela: true, tipo: true, tributo: true, valor: true },
     orderBy: { updatedAt: "asc" },
   });
 }
@@ -33,7 +33,7 @@ export function getDividaPorAtividadeId({ atividadeId }: { atividadeId: Atividad
 export function getDividaPorEconomiaId({ economiaId }: { economiaId: Economia["id"] }) {
   return prisma.divida.findMany({
     where: { economiaId },
-    select: { id: true, contribuinte: true, Economia: true, exercicio: true, parcela: true, tipo: true, tributo: true, value: true },
+    select: { id: true, contribuinte: true, Economia: true, exercicio: true, parcela: true, tipo: true, tributo: true, valor: true },
     orderBy: { updatedAt: "asc" },
   });
 }
