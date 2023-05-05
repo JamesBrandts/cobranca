@@ -14,8 +14,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  password Password?
-  notes    Note[]
+  password  Password?
+  notes     Note[]
+  cobrancas Cobranca[]
 }
 
 model Password {
@@ -50,6 +51,8 @@ model Contribuinte {
 
   dividas Divida[]
 
+  cobrancas Cobranca[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -70,6 +73,8 @@ model Divida {
   tributo String
   valor   Int
 
+  itens Item[]
+
   vencimento DateTime @default(now())
 
   createdAt DateTime   @default(now())
@@ -81,8 +86,8 @@ model Divida {
 model Economia {
   id String @id @default(cuid())
 
-  contribuinte   Contribuinte? @relation(fields: [contribuinteId], references: [id])
-  contribuinteId String?
+  contribuinte   Contribuinte @relation(fields: [contribuinteId], references: [id])
+  contribuinteId String
 
   dividas Divida[]
 }
@@ -90,8 +95,33 @@ model Economia {
 model Atividade {
   id String @id @default(cuid())
 
-  contribuinte   Contribuinte? @relation(fields: [contribuinteId], references: [id])
-  contribuinteId String?
+  contribuinte   Contribuinte @relation(fields: [contribuinteId], references: [id])
+  contribuinteId String
 
   dividas Divida[]
+}
+
+model Cobranca {
+  id String @id @default(cuid())
+
+  status String
+
+  users   User[]
+
+  contribuinte   Contribuinte @relation(fields: [contribuinteId], references: [id])
+  contribuinteId String
+
+  itens Item[]
+}
+
+model Item {
+  id String @id @default(cuid())
+
+  status String
+
+  cobranca   Cobranca @relation(fields: [cobrancaId], references: [id])
+  cobrancaId String
+
+  divida   Divida @relation(fields: [dividaId], references: [id])
+  dividaId String
 }
