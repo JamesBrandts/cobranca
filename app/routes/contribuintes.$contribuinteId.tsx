@@ -1,7 +1,7 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
-  Form,
+  Link,
   isRouteErrorResponse,
   useLoaderData,
   useRouteError,
@@ -65,8 +65,8 @@ export default function NoteDetailsPage() {
               <td className="p-2 border border-slate-600">{divida.exercicio}</td>
               <td className="p-2 border border-slate-600">{divida.parcela}</td>
               <td className="p-2 border border-slate-600">{`R$ ${Math.floor(divida.valor / 100)},${divida.valor % 100}`}</td>
-              <td className="p-2 border border-slate-600">{divida.Economia?.id}</td>
-              <td className="p-2 border border-slate-600">{divida.Atividade?.id}</td>
+              <td className="p-2 border border-slate-600"><Link to={`/economias/${divida.economiaId}`}>{divida.economiaId}</Link></td>
+              <td className="p-2 border border-slate-600"><Link to={`/atividades/${divida.atividadeId}`}>{divida.atividadeId}</Link></td>
             </tr>
           ))}
         </table>)}

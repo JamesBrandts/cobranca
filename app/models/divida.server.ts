@@ -21,6 +21,8 @@ export function getDivida({ id, contribuinteId, }:
       vencimento: true,
       createdAt: true,
       updatedAt: true,
+      Economia:true,
+      Atividade:true,
     },
     where: {
       id,
@@ -48,6 +50,8 @@ export function getDividaPorContribuinteId({ contribuinteId }: { contribuinteId:
       vencimento: true,
       createdAt: true,
       updatedAt: true,
+      Economia:true,
+      Atividade:true,
     },
     orderBy: {
       updatedAt: "asc"

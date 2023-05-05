@@ -6,7 +6,7 @@ export function getEconomia({
   id,
 }: Pick<Economia, "id">): Promise<Economia | null> {
   return prisma.economia.findFirst({
-    select: { id: true, dividas: true, contribuinte: true, contribuinteId: true },
+    select: { id: true, dividas: true, contribuinte: true, contribuinteId: true, },
     where: { id },
   });
 }
