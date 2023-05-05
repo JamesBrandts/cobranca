@@ -112,6 +112,8 @@ model Cobranca {
   contribuinteId String
 
   itens Item[]
+
+  createdAt DateTime @default(now())
 }
 
 model Item {
@@ -124,4 +126,6 @@ model Item {
 
   divida   Divida @relation(fields: [dividaId], references: [id])
   dividaId String
+
+  createdAt DateTime @default(now())
 }
