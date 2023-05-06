@@ -12,6 +12,7 @@ import { getDividaPorEconomiaId } from "~/models/divida.server";
 
 import { deleteNote } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
+import { getContribuinte } from "~/models/contribuinte.server";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.economiaId, "noteId not found");
@@ -20,9 +21,15 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   if (!economia) {
     throw new Response("Not Found", { status: 404 });
   }
+  if (!economia?.contribuinteId) {
+    throw new Response("Not Found", { status: 404 });
+  }
+
+
+  const contribuinte = await getContribuinte({ id: economia.contribuinteId })
 
   const dividas = await getDividaPorEconomiaId({ economiaId: params.economiaId })
-  return json({ dividas });
+  return json({ dividas, contribuinte });
 };
 
 export const action = async ({ params, request }: ActionArgs) => {
@@ -35,15 +42,19 @@ export const action = async ({ params, request }: ActionArgs) => {
 };
 
 export default function NoteDetailsPage() {
-  const { dividas } = useLoaderData<typeof loader>();
+  const { dividas, contribuinte } = useLoaderData<typeof loader>();
   const total = dividas.reduce((acc, divida) => acc + divida.valor, 0);
   return (
     <div>
-      {/* <h3 className="text-2xl font-bold">{economia.nome}</h3>
-      <p className="py-6">Telefone: {economia.telefone}</p>
-      <p className="py-6">E-mail: {economia.email}</p>
-      <p className="py-6">CPF/CNPJ: {economia.cpf_cnpj}</p> */}
-      <p className="py-6 ">Dívida Total: <span className="font-bold text-xl">{`R$ ${Math.floor(total / 100)},${total % 100}`}</span></p>
+      <div className="border p-2">
+        <div className="bg-white w-28 p-2 m-2" style={{marginTop:-28}}>Contribuinte</div>
+        <p className="py-2">ID: <Link to={`/contribuintes/${contribuinte?.id}`}>{contribuinte?.id}</Link> </p>
+        <h3 className="text-2xl font-bold">{contribuinte?.nome}</h3>
+        <p className="py-2">Telefone: {contribuinte?.telefone}</p>
+        <p className="py-2">E-mail: {contribuinte?.email}</p>
+        <p className="py-2">CPF/CNPJ: {contribuinte?.cpf_cnpj}</p>
+      </div>
+      <p className="py-2 ">Dívida Total Economia: <span className="font-bold text-xl">{`R$ ${Math.floor(total / 100)},${total % 100}`}</span></p>
       <hr className="my-4" />
       {dividas.length === 0 ? (
         <p className="p-2">Nenhuma Dívida a ser Exibida</p>
@@ -55,8 +66,8 @@ export default function NoteDetailsPage() {
             <th className="p-2 border border-slate-600">Exercício</th>
             <th className="p-2 border border-slate-600">Parcela</th>
             <th className="p-2 border border-slate-600">Valor</th>
-            <th className="p-2 border border-slate-600">Economia</th>
-            <th className="p-2 border border-slate-600">Atividade</th>
+            {/* <th className="p-2 border border-slate-600">Economia</th>
+            <th className="p-2 border border-slate-600">Atividade</th> */}
           </tr>
           {dividas.map((divida) => (
             <tr key={divida.id}>
@@ -65,8 +76,8 @@ export default function NoteDetailsPage() {
               <td className="p-2 border border-slate-600">{divida.exercicio}</td>
               <td className="p-2 border border-slate-600">{divida.parcela}</td>
               <td className="p-2 border border-slate-600">{`R$ ${Math.floor(divida.valor / 100)},${divida.valor % 100}`}</td>
-              <td className="p-2 border border-slate-600"><Link to={`/economias/${divida.economiaId}`}>{divida.economiaId}</Link></td>
-              <td className="p-2 border border-slate-600"><Link to={`/atividades/${divida.atividadeId}`}>{divida.atividadeId}</Link></td>
+              {/* <td className="p-2 border border-slate-600"><Link to={`/economias/${divida.economiaId}`}>{divida.economiaId}</Link></td>
+              <td className="p-2 border border-slate-600"><Link to={`/atividades/${divida.atividadeId}`}>{divida.atividadeId}</Link></td> */}
             </tr>
           ))}
         </table>)}

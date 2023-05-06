@@ -39,11 +39,12 @@ export default function NoteDetailsPage() {
   const total = dividas.reduce((acc, divida) => acc + divida.valor, 0);
   return (
     <div>
-      <h3 className="text-2xl font-bold">{contribuinte.nome}</h3>
-      <p className="py-6">Telefone: {contribuinte.telefone}</p>
-      <p className="py-6">E-mail: {contribuinte.email}</p>
-      <p className="py-6">CPF/CNPJ: {contribuinte.cpf_cnpj}</p>
-      <p className="py-6 ">Dívida Total: <span className="font-bold text-xl">{`R$ ${Math.floor(total / 100)},${total % 100}`}</span></p>
+      <p className="py-2">ID: {contribuinte.id}</p>
+      <h3>Nome: <span className="text-xl font-bold">{contribuinte.nome}</span></h3>
+      <p className="py-2">Telefone: {contribuinte.telefone}</p>
+      <p className="py-2">E-mail: {contribuinte.email}</p>
+      <p className="py-2">CPF/CNPJ: {contribuinte.cpf_cnpj}</p>
+      <p className="py-2 ">Dívida Total Contribuinte: <span className="font-bold text-xl">{`R$ ${Math.floor(total / 100)},${total % 100}`}</span></p>
       <hr className="my-4" />
       {dividas.length === 0 ? (
         <p className="p-2">Nenhuma Dívida a ser Exibida</p>

@@ -14,7 +14,6 @@ export const loader = async ({ request }: LoaderArgs) => {
 export default function NotesPage() {
   const { atividades } = useLoaderData<typeof loader>();
   const user = useUser();
-  console.log({atividades});
   return (
     <div className="flex h-full min-h-screen flex-col">
       <Header focus="atividades" user={user} />
