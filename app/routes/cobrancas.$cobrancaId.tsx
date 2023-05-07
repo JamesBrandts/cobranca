@@ -50,9 +50,9 @@ export default function NoteDetailsPage() {
       <p className="py-2 ">Dívida Total Cobranca: <span className="font-bold text-xl">{`R$ ${Math.floor(total / 100)},${total % 100}`}</span></p>
       <hr className="my-4" />
       <div>
-        {/* <p>Status da Cobrança: {cobranca.status}</p> */}
+        <p>Status da Cobrança: {cobranca.status}</p>
         <div className="flex gap-2 items-center">
-          <Form action="./pendente" method="post">
+          <Form action="./Pendente" method="post">
             <button
               type="submit"
               className={`rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 focus:bg-red-400 ${cobranca.status === "Pendente"&&"border-8 border-zinc-500"}`}
@@ -60,7 +60,7 @@ export default function NoteDetailsPage() {
               Pendente
             </button>
           </Form>
-          <Form action="./parcial" method="post">
+          <Form action="./Parcialmente Convertida" method="post">
             <button
               type="submit"
               className={`rounded bg-orange-500 px-4 py-2 text-white hover:bg-orange-600 focus:bg-orange-400 ${cobranca.status === "Parcialmente Convertida"&&"border-8 border-zinc-500"}`}
@@ -68,7 +68,7 @@ export default function NoteDetailsPage() {
               Parcialmente Convertida
             </button>
           </Form>
-          <Form action="./convertida" method="post">
+          <Form action="./Convertida" method="post">
             <button
               type="submit"
               className={`rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600 focus:bg-yellow-400 ${cobranca.status === "Convertida"&&"border-8 border-zinc-500"}`}
@@ -76,7 +76,7 @@ export default function NoteDetailsPage() {
               Convertida
             </button>
           </Form>
-          <Form action="./paga" method="post">
+          <Form action="./Paga" method="post">
             <button
               type="submit"
               className={`rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600 focus:bg-green-400 ${cobranca.status === "Paga"&&"border-8 border-zinc-500"}`}
@@ -84,7 +84,7 @@ export default function NoteDetailsPage() {
               Paga
             </button>
           </Form>
-          <Form action="./parcelada" method="post">
+          <Form action="./Parcelada" method="post">
             <button
               type="submit"
               className={`rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400 ${cobranca.status === "Parcelada"&&"border-8 border-zinc-500"}`}
