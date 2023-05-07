@@ -1,0 +1,8 @@
+#cobrancas-menu {
+    display: none;
+}
+
+/* Show the form when the div is hovered over */
+#cobrancas:hover #cobrancas-menu {
+    display: block;
+}

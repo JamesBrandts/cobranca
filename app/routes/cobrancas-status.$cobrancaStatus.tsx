@@ -1,15 +1,17 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import invariant from "tiny-invariant";
 import Header from "~/components/Header";
-import { getCobrancaListByUser } from "~/models/cobranca.server";
+import { getCobrancaListByUserAndStatus } from "~/models/cobranca.server";
 import { requireUserId } from "~/session.server";
 
 import { useUser } from "~/utils";
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   const userId = await requireUserId(request);
-  const cobrancas = await getCobrancaListByUser({ userId });
+  invariant(params.cobrancaStatus, "cobrancaStatus is required")
+  const cobrancas = await getCobrancaListByUserAndStatus({ userId, status: params.cobrancaStatus });
   return json({ cobrancas });
 };
 
@@ -22,7 +24,7 @@ export default function NotesPage() {
       <main className="flex h-full bg-white">
         <div className="h-full w-80 border-r bg-gray-50">
           {cobrancas.length === 0 ? (
-            <p className="p-4">No notes yet</p>
+            <p className="p-4">Nenhuma cobrança encontrada</p>
           ) : (
             <ol>
               {cobrancas.map((cobranca) => (

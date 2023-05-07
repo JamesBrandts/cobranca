@@ -20,6 +20,15 @@ export function getCobrancaListByUser({ userId }: { userId: User["id"] })
   });
 }
 
+export function getCobrancaListByUserAndStatus({ userId, status }: { userId: User["id"], status: Cobranca["status"] })
+: Promise<Cobranca[]>{
+  return prisma.cobranca.findMany({
+    where: { users: { some: { id: userId } }, status },
+    select: { id: true, itens: true, contribuinte: true, contribuinteId: true, status: true, createdAt: true },
+    orderBy: { createdAt: "asc" },
+  });
+}
+
 export function updateCobrancaStatus({
   id, status
 }: Pick<Cobranca, "id"> & { status: Cobranca["status"] })

@@ -6,18 +6,25 @@ export default function Header(props: { focus: String; user: User }) {
   const { focus, user } = props
   return (
     <header className="flex items-center justify-between bg-slate-800 p-4 text-white">
-      <h1 className={`text-xl font-bold ${focus === "cobrancas" ? " underline" : ""}`}>
+      <div id="cobrancas" className={`text-xl font-bold ${focus === "cobrancas" ? " underline" : ""}`}>
         <Link to="/cobrancas">Cobranças</Link>
-      </h1>
-      <h1 className={`text-xl font-bold ${focus === "contribuintes" ? " underline" : ""}`}>
+        <div id="cobrancas-menu" className="absolute bg-slate-800 flex flex-col p-2 gap-2 rounded-md">
+          <div><Link to="/cobrancas-status/Pendente"><span className="text-red-500 text-3xl">●</span> Pendentes</Link></div>
+          <div><Link to="/cobrancas-status/Parcialmente Convertida"><span className="text-orange-500 text-3xl">●</span> Parcialmente Convertidas</Link></div>
+          <div><Link to="/cobrancas-status/Convertida"><span className="text-yellow-500 text-3xl">●</span> Convertidas</Link></div>
+          <div><Link to="/cobrancas-status/Paga"><span className="text-green-500 text-3xl">●</span> Pagas</Link></div>
+          <div><Link to="/cobrancas-status/Parcelada"><span className="text-blue-500 text-3xl">●</span> Parceladas</Link></div>
+        </div>
+      </div>
+      <div className={`text-xl font-bold ${focus === "contribuintes" ? " underline" : ""}`}>
         <Link to="/contribuintes">Contribuintes</Link>
-      </h1>
-      <h1 className={`text-xl font-bold ${focus === "economias" ? " underline" : ""}`}>
+      </div>
+      <div className={`text-xl font-bold ${focus === "economias" ? " underline" : ""}`}>
         <Link to="/economias">Economias</Link>
-      </h1>
-      <h1 className={`text-xl font-bold ${focus === "atividades" ? " underline" : ""}`}>
+      </div>
+      <div className={`text-xl font-bold ${focus === "atividades" ? " underline" : ""}`}>
         <Link to="/atividades">Atividades</Link>
-      </h1>
+      </div>
       <div className="flex items-center text-white gap-4">
         <p>{user.email}</p>
         <Form action="/logout" method="post">
