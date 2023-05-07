@@ -2,36 +2,44 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
-import { getEconomias } from "~/models/economia.server";
+import { getCobrancaListByUser } from "~/models/cobranca.server";
+import { requireUserId } from "~/session.server";
 
 import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const economias = await getEconomias();
-  return json({ economias });
+  const userId = await requireUserId(request);
+  const cobrancas = await getCobrancaListByUser({ userId });
+  return json({ cobrancas });
 };
 
 export default function NotesPage() {
-  const { economias } = useLoaderData<typeof loader>();
+  const { cobrancas }: { cobrancas: any[] } = useLoaderData<typeof loader>();
   const user = useUser();
   return (
     <div className="flex h-full min-h-screen flex-col">
-      <Header focus="economias" user={user} />
+      <Header focus="cobrancas" user={user} />
       <main className="flex h-full bg-white">
         <div className="h-full w-80 border-r bg-gray-50">
-          {economias.length === 0 ? (
+          {cobrancas.length === 0 ? (
             <p className="p-4">No notes yet</p>
           ) : (
             <ol>
-              {economias.map((economia) => (
-                <li key={economia.id}>
+              {cobrancas.map((cobranca) => (
+                <li key={cobranca.id}>
                   <NavLink
                     className={({ isActive }) =>
                       `block border-b p-4 text-xl ${isActive ? "bg-white" : ""}`
                     }
-                    to={economia.id}
+                    to={cobranca.id}
                   >
-                    {economia.contribuinteId}
+                    <span className={
+                      cobranca.status === "Pendente" ? "text-red-500 text-3xl" :
+                        cobranca.status === "Parcialmente Convertida" ? "text-yellow-500 text-3xl" :
+                          cobranca.status === "Convertida" ? "text-green-500 text-3xl" :
+                            cobranca.status === "Paga" ? "text-blue-500 text-3xl" :
+                              "text-black-500 text-3xl"}
+                    >●</span> {cobranca.contribuinte.nome}
                   </NavLink>
                 </li>
               ))}

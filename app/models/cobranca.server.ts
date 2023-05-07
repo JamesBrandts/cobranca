@@ -16,7 +16,7 @@ export function getCobrancaListByUser({ userId }: { userId: User["id"] })
   return prisma.cobranca.findMany({
     where: { users: { some: { id: userId } } },
     select: { id: true, itens: true, contribuinte: true, contribuinteId: true, status: true, createdAt: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: { createdAt: "asc" },
   });
 }
 
@@ -46,7 +46,7 @@ export function createCobranca({
           id: contribuinteId,
       }
     },
-    status: "pendente",
+    status: "Pendente",
     users: {
       connect: {
         id: userId,
