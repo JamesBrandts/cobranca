@@ -6,15 +6,15 @@ import { createCobranca } from "~/models/cobranca.server";
 import { advancedFilter } from "~/models/divida.server";
 import { createItem } from "~/models/item.server";
 
-import { createTag } from "~/models/tag.server";
+import { createTag, deleteTag } from "~/models/tag.server";
 import { getUsersList } from "~/models/user.server";
 
 export const action = async ({ request }: ActionArgs) => {
   const formData = await request.formData();
   const users = await getUsersList();
   const nome = formData.get("nome");
-  const minValor = Number(formData.get("minValor")) || 0;
-  const maxValor = Number(formData.get("maxValor")) || Number.MAX_SAFE_INTEGER;
+  const minValor = Number(formData.get("minValor"))*100 || 0;
+  const maxValor = Number(formData.get("maxValor"))*100 || Number.MAX_SAFE_INTEGER;
   const tipo = formData.get("tipo");
   const exercicioMin = Number(formData.get("exercicioMin")) || 0;;
   const exercicioMax = Number(formData.get("exercicioMax")) || 9999;
@@ -35,7 +35,8 @@ export const action = async ({ request }: ActionArgs) => {
       { status: 400 }
     );
   }
-  const tag = await createTag({ nome, userIds });
+  const tag = await createTag({ nome, userIds })
+  let preencheuFiltro = false;
   const filtroTributo = tributo !== "todos" ? tributo : { not: '' };
   const filtroTipo = tipo !== "todos" ? tipo : { not: '' };
   const dividas = await advancedFilter({ tributo: filtroTributo, tipo: filtroTipo, exercicio: { gte: exercicioMin, lte: exercicioMax } });
@@ -44,14 +45,22 @@ export const action = async ({ request }: ActionArgs) => {
     const dividasContribuinte = dividas.filter((divida) => divida.contribuinteId === contribuinteId);
     const dividasContribuinteValor = dividasContribuinte.map((divida) => divida.valor).reduce((a, b) => a + b, 0);
     if (dividasContribuinteValor < minValor || dividasContribuinteValor > maxValor) return;
+    preencheuFiltro = true;
     const cobranca = await createCobranca({ contribuinteId, tagId: tag.id, userIds });
     dividasContribuinte.forEach(async (divida) => {
       await createItem({ cobrancaId: cobranca.id, dividaId: divida.id });
     });
   });
 
-  //return redirect(`/tags/${tag.id}`);
-  return redirect(`/tags/new`);
+  if (preencheuFiltro) {
+    await deleteTag({id:tag.id});
+    return json(
+      { errors: { users: "Nenhuma dívida encontrada com os filtros selecionados", nome: null } },
+      { status: 400 }
+    );
+  }
+
+  return redirect(`/tags/${tag.id}`);
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -89,14 +98,18 @@ export default function NewTagPage() {
         width: "100%",
       }}
     >
-      <div ref={usersRef} className="flex gap-2">
-        <label className="flex w-full flex-col gap-1">Usuários: </label>
-        {users.map((user) => (
-          <label key={user.id}>
-            <input name={user.id} value={user.id}
-              type="checkbox" /> {user.email}
-          </label>
-        ))}
+      <div ref={usersRef} className="flex-col">
+        <label className="flex p-2">Usuários: </label>
+        <div className="grid grid-cols-6 gap-4">
+          {users.map((user) => (
+            <div className="" key={user.id}>
+              <label className="flex justify-center items-center" >
+                <input className="" name={user.id} value={user.id}
+                  type="checkbox" /> {user.email}
+              </label>
+            </div>
+          ))}
+        </div>
         {actionData?.errors?.users ? (
           <div className="pt-1 text-red-700" id="users-error">
             {actionData.errors.users}
