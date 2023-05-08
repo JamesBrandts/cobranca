@@ -9,10 +9,10 @@ import {
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { getCobranca } from "~/models/cobranca.server";
-import { getDividaPorContribuinteId } from "~/models/divida.server";
 
 
 import { getContribuinte } from "~/models/contribuinte.server";
+import { getItemsByCobranca } from "~/models/item.server";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.cobrancaId, "noteId not found");
@@ -29,14 +29,14 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   if (!contribuinte) {
     throw new Response("Contribuinte não encontrado", { status: 404 });
   }
-  const dividas = await getDividaPorContribuinteId({ contribuinteId: contribuinte.id })
-  return json({ cobranca, dividas, contribuinte });
+  const items = await getItemsByCobranca({ cobrancaId: cobranca.id })
+  return json({ cobranca, contribuinte, items });
 };
 
 
 export default function NoteDetailsPage() {
-  const { cobranca, dividas, contribuinte } = useLoaderData<typeof loader>();
-  const total = dividas.reduce((acc, divida) => acc + divida.valor, 0);
+  const { cobranca, contribuinte, items }  = useLoaderData<typeof loader>();
+  const total = items.reduce((acc, item :any) => acc + item.divida.valor, 0);
   return (
     <div>
       <div className="border p-2">
@@ -50,7 +50,7 @@ export default function NoteDetailsPage() {
       <p className="py-2 ">Dívida Total Cobranca: <span className="font-bold text-xl">{`R$ ${Math.floor(total / 100)},${total % 100}`}</span></p>
       <hr className="my-4" />
       <div>
-        {/* <p>Status da Cobrança: {cobranca.status}</p> */}
+        <p>Status da Cobrança: {cobranca.status}</p>
         <div className="flex gap-2 items-center">
           <Form action="./Pendente" method="post">
             <button
@@ -94,8 +94,9 @@ export default function NoteDetailsPage() {
           </Form>
         </div>
       </div>
-      <hr className="my-4" />
-      {dividas.length === 0 ? (
+      
+        <hr className="my-4" />
+      {items.length === 0 ? (
         <p className="p-2">Nenhuma Dívida a ser Exibida</p>
       ) : (
         <table className="table-auto border-collapse border border-slate-500">
@@ -108,15 +109,15 @@ export default function NoteDetailsPage() {
             <th className="p-2 border border-slate-600">Economia</th>
             <th className="p-2 border border-slate-600">Atividade</th>
           </tr>
-          {dividas.map((divida) => (
-            <tr key={divida.id}>
-              <td className="p-2 border border-slate-600">{divida.tipo}</td>
-              <td className="p-2 border border-slate-600">{divida.tributo}</td>
-              <td className="p-2 border border-slate-600">{divida.exercicio}</td>
-              <td className="p-2 border border-slate-600">{divida.parcela}</td>
-              <td className="p-2 border border-slate-600">{`R$ ${Math.floor(divida.valor / 100)},${divida.valor % 100}`}</td>
-              <td className="p-2 border border-slate-600"><Link to={`/cobrancas/${divida.economiaId}`}>{divida.economiaId}</Link></td>
-              <td className="p-2 border border-slate-600"><Link to={`/atividades/${divida.atividadeId}`}>{divida.atividadeId}</Link></td>
+          {items.map((item :any) => (            
+            <tr key={item.id}>              
+              <td className="p-2 border border-slate-600">{item.divida.tipo}</td>
+              <td className="p-2 border border-slate-600">{item.divida.tributo}</td>
+              <td className="p-2 border border-slate-600">{item.divida.exercicio}</td>
+              <td className="p-2 border border-slate-600">{item.divida.parcela}</td>
+              <td className="p-2 border border-slate-600">{`R$ ${Math.floor(item.divida.valor / 100)},${item.divida.valor % 100}`}</td>
+              <td className="p-2 border border-slate-600"><Link to={`/economias/${item.divida.economiaId}`}>{item.divida.economiaId}</Link></td>
+              <td className="p-2 border border-slate-600"><Link to={`/atividades/${item.divida.atividadeId}`}>{item.divida.atividadeId}</Link></td>
             </tr>
           ))}
         </table>)}

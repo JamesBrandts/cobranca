@@ -4,13 +4,8 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function seed() {
-  const email = "rachel@remix.run";
-
-  // cleanup the existing database
-  await prisma.user.delete({ where: { email } }).catch(() => {
-    // no worries if it doesn't exist yet
-  });
-
+  // delete all data from the database
+  await prisma.contribuinte.deleteMany()
   await prisma.contribuinte.deleteMany().catch(() => { });
   await prisma.economia.deleteMany().catch(() => { });
   await prisma.atividade.deleteMany().catch(() => { });
@@ -37,7 +32,7 @@ async function seed() {
     },
   });
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 10; i++) {
     await prisma.user.create({
       data: {
         email: `user${i}@mail.com`,
@@ -69,7 +64,7 @@ async function seed() {
         contribuinteId: contribuinte.id,
       }
     })
-    for (let i = 0; i < Math.random() * 100; i++) {
+    for (let i = 0; i < Math.random() * 50; i++) {
       await prisma.divida.create({
         data: {
           valor: Math.floor(Math.random() * 100000),
@@ -82,7 +77,7 @@ async function seed() {
         }
       })
     }
-    for (let i = 0; i < Math.random() * 100; i++) {
+    for (let i = 0; i < Math.random() * 50; i++) {
       await prisma.divida.create({
         data: {
           valor: Math.floor(Math.random() * 100000),
@@ -104,7 +99,7 @@ async function seed() {
         contribuinteId: contribuinte.id,
       }
     })
-    for (let i = 0; i < Math.random() * 50; i++) {
+    for (let i = 0; i < Math.random() * 25; i++) {
       await prisma.divida.create({
         data: {
           valor: Math.floor(Math.random() * 1000000),
@@ -117,7 +112,7 @@ async function seed() {
         }
       })
     }
-    for (let i = 0; i < Math.random() * 50; i++) {
+    for (let i = 0; i < Math.random() * 25; i++) {
       await prisma.divida.create({
         data: {
           valor: Math.floor(Math.random() * 1000000),

@@ -29,7 +29,7 @@ export default function TagsPage() {
           <hr />
 
           {data.tagListItems.length === 0 ? (
-            <p className="p-4">No tags yet</p>
+            <p className="p-4">Nenhuma Tag Disponível</p>
           ) : (
             <ol>
               {data.tagListItems.map((tag) => (

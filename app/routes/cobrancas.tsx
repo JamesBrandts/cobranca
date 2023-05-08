@@ -22,7 +22,7 @@ export default function NotesPage() {
       <main className="flex h-full bg-white">
         <div className="h-full w-80 border-r bg-gray-50">
           {cobrancas.length === 0 ? (
-            <p className="p-4">No notes yet</p>
+            <p className="p-4">Nenhuma cobrança disponível</p>
           ) : (
             <ol>
               {cobrancas.map((cobranca) => (
