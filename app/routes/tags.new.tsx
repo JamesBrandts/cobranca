@@ -89,7 +89,7 @@ export default function NewTagPage() {
         width: "100%",
       }}
     >
-      <div ref={usersRef} className="flex flex-col gap-2">
+      <div ref={usersRef} className="flex gap-2">
         <label className="flex w-full flex-col gap-1">Usuários: </label>
         {users.map((user) => (
           <label key={user.id}>
