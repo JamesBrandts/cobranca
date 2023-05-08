@@ -30,7 +30,7 @@ export function updateItemStatus({
   });
 }
 
-export function getItemByCobranca({ cobrancaId }: { cobrancaId: Cobranca["id"] })
+export function getItemsByCobranca({ cobrancaId }: { cobrancaId: Cobranca["id"] })
   : Promise<Item[]> {
   return prisma.item.findMany({
     where: { cobrancaId },
@@ -39,6 +39,20 @@ export function getItemByCobranca({ cobrancaId }: { cobrancaId: Cobranca["id"] }
       status: true,
       cobrancaId: true,
       dividaId: true,
+      divida: {
+        select: {
+          id: true,
+          contribuinteId: true,
+          economiaId: true,
+          atividadeId: true,
+          exercicio: true,
+          parcela: true,
+          tipo: true,
+          tributo: true,
+          valor: true,
+          vencimento: true,
+        },
+      },
       createdAt: true,
     },
     orderBy: { createdAt: "desc" },

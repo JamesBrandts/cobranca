@@ -11,17 +11,24 @@ async function seed() {
     // no worries if it doesn't exist yet
   });
 
-  await prisma.contribuinte.deleteMany().catch(() => {});
-  await prisma.economia.deleteMany().catch(() => {});
-  await prisma.atividade.deleteMany().catch(() => {});
-  await prisma.divida.deleteMany().catch(() => {});
+  await prisma.contribuinte.deleteMany().catch(() => { });
+  await prisma.economia.deleteMany().catch(() => { });
+  await prisma.atividade.deleteMany().catch(() => { });
+  await prisma.divida.deleteMany().catch(() => { });
+  await prisma.user.deleteMany().catch(() => { });
+  await prisma.password.deleteMany().catch(() => { });
+  await prisma.note.deleteMany().catch(() => { });
+  await prisma.cobranca.deleteMany().catch(() => { });
+  await prisma.item.deleteMany().catch(() => { });
+  await prisma.tag.deleteMany().catch(() => { });
 
 
-  const hashedPassword = await bcrypt.hash("racheliscool", 10);
+  // seed the database with the initial data
+  const hashedPassword = await bcrypt.hash("1234567890", 10);
 
-  const user = await prisma.user.create({
+  await prisma.user.create({
     data: {
-      email,
+      email: "admin@mail.com",
       password: {
         create: {
           hash: hashedPassword,
@@ -30,37 +37,19 @@ async function seed() {
     },
   });
 
-  await prisma.note.create({
-    data: {
-      title: "My first note",
-      body: "Hello, world!",
-      userId: user.id,
-    },
-  });
-
-  await prisma.note.create({
-    data: {
-      title: "My second note",
-      body: "Hello, world!",
-      userId: user.id,
-    },
-  });
-
-  
-  // create a new user with a hashed password
-
-  const hashedPassword2 = await bcrypt.hash("1234567890", 10);
-
-  await prisma.user.create({
-    data: {
-      email:"admin@mail.com",
-      password: {
-        create: {
-          hash: hashedPassword2,
+  for (let i = 0; i < 100; i++) {
+    await prisma.user.create({
+      data: {
+        email: `user${i}@mail.com`,
+        password: {
+          create: {
+            hash: hashedPassword,
+          },
         },
       },
-    },
-  });
+    }
+    )
+  }
 
   for (let i = 0; i < 100; i++) {
     await prisma.contribuinte.create({
@@ -93,7 +82,21 @@ async function seed() {
         }
       })
     }
+    for (let i = 0; i < Math.random() * 100; i++) {
+      await prisma.divida.create({
+        data: {
+          valor: Math.floor(Math.random() * 100000),
+          contribuinteId: contribuinte.id,
+          tributo: "IPTU",
+          economiaId: economia.id,
+          exercicio: 2013 + Math.floor(Math.random() * 10),
+          parcela: Math.floor(Math.random() * 10),
+          tipo: "P"
+        }
+      })
+    }
   }
+  
 
   for (let contribuinte of contribuintes) {
     const atividade = await prisma.atividade.create({
@@ -111,6 +114,19 @@ async function seed() {
           exercicio: 2013 + Math.floor(Math.random() * 10),
           parcela: Math.floor(Math.random() * 10),
           tipo: "N"
+        }
+      })
+    }
+    for (let i = 0; i < Math.random() * 50; i++) {
+      await prisma.divida.create({
+        data: {
+          valor: Math.floor(Math.random() * 1000000),
+          contribuinteId: contribuinte.id,
+          tributo: "ISSQN",
+          atividadeId: atividade.id,
+          exercicio: 2013 + Math.floor(Math.random() * 10),
+          parcela: Math.floor(Math.random() * 10),
+          tipo: "P"
         }
       })
     }
