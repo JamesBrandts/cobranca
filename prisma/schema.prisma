@@ -17,6 +17,7 @@ model User {
   password  Password?
   notes     Note[]
   cobrancas Cobranca[]
+  tags      Tag[]
 }
 
 model Password {
@@ -114,6 +115,9 @@ model Cobranca {
   itens Item[]
 
   createdAt DateTime @default(now())
+
+  tag  Tag?   @relation(fields: [tagId], references: [id])
+  tagId String?
 }
 
 model Item {
@@ -129,3 +133,17 @@ model Item {
 
   createdAt DateTime @default(now())
 }
+
+model Tag {
+  id String @id @default(cuid())
+
+  nome String
+
+  users User[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cobrancas Cobranca[]
+}
+
