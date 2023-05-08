@@ -20,6 +20,15 @@ export function getCobrancaListByUser({ userId }: { userId: User["id"] })
   });
 }
 
+export function getCobrancaListByTag({ tagId }: { tagId: Tag["id"] })
+  : Promise<Cobranca[]> {
+  return prisma.cobranca.findMany({
+    where: { tagId },
+    select: { id: true, itens: true, contribuinte: true, contribuinteId: true, status: true, createdAt: true, users: true, tag: true, tagId: true },
+    orderBy: { createdAt: "asc" },
+  });
+}
+
 export function getCobrancaListByUserAndStatus({ userId, status }: { userId: User["id"], status: Cobranca["status"] })
   : Promise<Cobranca[]> {
   return prisma.cobranca.findMany({
@@ -44,10 +53,10 @@ export function updateCobrancaStatus({
 
 export function createCobranca({
   contribuinteId,
-  userId,
+  userIds,
   tagId,
 }: Pick<Cobranca, "contribuinteId"> & {
-  userId: User["id"];
+  userIds: User["id"][];
 }& {
   tagId: Tag["id"];
 }) {
@@ -65,9 +74,7 @@ export function createCobranca({
       },
       status: "Pendente",
       users: {
-        connect: {
-          id: userId,
-        },
+        connect: userIds.map((id) => ({ id })),
       },
     }
   });

@@ -2,6 +2,9 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
+import { createCobranca } from "~/models/cobranca.server";
+import { advancedFilter } from "~/models/divida.server";
+import { createItem } from "~/models/item.server";
 
 import { createTag } from "~/models/tag.server";
 import { getUsersList } from "~/models/user.server";
@@ -10,10 +13,11 @@ export const action = async ({ request }: ActionArgs) => {
   const formData = await request.formData();
   const users = await getUsersList();
   const nome = formData.get("nome");
-  const minValor = formData.get("minValor");
-  const maxValor = formData.get("maxValor");
+  const minValor = Number(formData.get("minValor")) || 0;
+  const maxValor = Number(formData.get("maxValor")) || Number.MAX_SAFE_INTEGER;
   const tipo = formData.get("tipo");
-  const exercicio = formData.get("exercicio");
+  const exercicioMin = Number(formData.get("exercicioMin")) || 0;;
+  const exercicioMax = Number(formData.get("exercicioMax")) || 9999;
   const tributo = formData.get("tributo");
   const allUserIds = users.map((user) => `${formData.get(user.id)}`);
 
@@ -32,9 +36,22 @@ export const action = async ({ request }: ActionArgs) => {
     );
   }
   const tag = await createTag({ nome, userIds });
-  const filtroTributo = tributo ? tributo : "";
-  
-  return redirect(`/tags/${tag.id}`);
+  const filtroTributo = tributo !== "todos" ? tributo : { not: '' };
+  const filtroTipo = tipo !== "todos" ? tipo : { not: '' };
+  const dividas = await advancedFilter({ tributo: filtroTributo, tipo: filtroTipo, exercicio: { gte: exercicioMin, lte: exercicioMax } });
+  const contribuinteIds = new Set(dividas.map((divida) => divida.contribuinteId));
+  contribuinteIds.forEach(async (contribuinteId) => {
+    const dividasContribuinte = dividas.filter((divida) => divida.contribuinteId === contribuinteId);
+    const dividasContribuinteValor = dividasContribuinte.map((divida) => divida.valor).reduce((a, b) => a + b, 0);
+    if (dividasContribuinteValor < minValor || dividasContribuinteValor > maxValor) return;
+    const cobranca = await createCobranca({ contribuinteId, tagId: tag.id, userIds });
+    dividasContribuinte.forEach(async (divida) => {
+      await createItem({ cobrancaId: cobranca.id, dividaId: divida.id });
+    });
+  });
+
+  //return redirect(`/tags/${tag.id}`);
+  return redirect(`/tags/new`);
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -50,7 +67,8 @@ export default function NewTagPage() {
   const minValorRef = useRef<HTMLInputElement>(null);
   const maxValorRef = useRef<HTMLInputElement>(null);
   const tipoRef = useRef<HTMLSelectElement>(null);
-  const exercicioRef = useRef<HTMLInputElement>(null);
+  const exercicioMinRef = useRef<HTMLInputElement>(null);
+  const exercicioMaxRef = useRef<HTMLInputElement>(null);
   const tributoRef = useRef<HTMLSelectElement>(null);
 
   useEffect(() => {
@@ -116,10 +134,6 @@ export default function NewTagPage() {
               name="minValor"
               type="number"
               className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-              aria-invalid={actionData?.errors?.nome ? true : undefined}
-              aria-errormessage={
-                actionData?.errors?.nome ? "nome-error" : undefined
-              }
             />
           </label>
         </div>
@@ -132,10 +146,6 @@ export default function NewTagPage() {
               type="number"
               name="maxValor"
               className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-              aria-invalid={actionData?.errors?.nome ? true : undefined}
-              aria-errormessage={
-                actionData?.errors?.nome ? "nome-error" : undefined
-              }
             />
           </label>
         </div>
@@ -144,16 +154,23 @@ export default function NewTagPage() {
       <div className="flex gap-4">
         <div>
           <label className="flex w-full flex-col gap-1">
-            <span>Exercício: </span>
+            <span>Exercício Mínimo: </span>
             <input
-              ref={exercicioRef}
-              name="exercicio"
+              ref={exercicioMinRef}
+              name="exercicioMin"
               type="number"
               className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-              aria-invalid={actionData?.errors?.nome ? true : undefined}
-              aria-errormessage={
-                actionData?.errors?.nome ? "nome-error" : undefined
-              }
+            />
+          </label>
+        </div>
+        <div>
+          <label className="flex w-full flex-col gap-1">
+            <span>Exercício Máximo: </span>
+            <input
+              ref={exercicioMaxRef}
+              name="exercicioMax"
+              type="number"
+              className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
             />
           </label>
         </div>
@@ -191,7 +208,7 @@ export default function NewTagPage() {
           type="submit"
           className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
         >
-          Save
+          Criar Tag
         </button>
       </div>
     </Form>

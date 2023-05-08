@@ -21,8 +21,8 @@ export function getDivida({ id, contribuinteId, }:
       vencimento: true,
       createdAt: true,
       updatedAt: true,
-      Economia:true,
-      Atividade:true,
+      Economia: true,
+      Atividade: true,
     },
     where: {
       id,
@@ -50,8 +50,8 @@ export function getDividaPorContribuinteId({ contribuinteId }: { contribuinteId:
       vencimento: true,
       createdAt: true,
       updatedAt: true,
-      Economia:true,
-      Atividade:true,
+      Economia: true,
+      Atividade: true,
     },
     orderBy: {
       updatedAt: "asc"
@@ -85,11 +85,71 @@ export function getDividaPorAtividadeId({ atividadeId }: { atividadeId: Atividad
   });
 }
 
+
+
 export function getDividaPorEconomiaId({ economiaId }: { economiaId: Economia["id"] })
   : Promise<Divida[]> {
   return prisma.divida.findMany({
     where: {
       economiaId
+    },
+    select: {
+      id: true,
+      contribuinteId: true,
+      economiaId: true,
+      atividadeId: true,
+      exercicio: true,
+      parcela: true,
+      tipo: true,
+      tributo: true,
+      valor: true,
+      vencimento: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: {
+      updatedAt: "asc"
+    },
+  });
+}
+
+export function advancedFilter({ exercicio, tipo, tributo }:
+  Pick<Divida, "exercicio" | "tipo" | "tributo"> | any):
+  Promise<Divida[]> {
+  return prisma.divida.findMany({
+    where: {
+      exercicio,
+      tipo,
+      tributo
+    },
+    select: {
+      id: true,
+      contribuinteId: true,
+      economiaId: true,
+      atividadeId: true,
+      exercicio: true,
+      parcela: true,
+      tipo: true,
+      tributo: true,
+      valor: true,
+      vencimento: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: {
+      contribuinteId: "asc"
+    },
+  });
+}
+
+export function advancedFilterContribuinte({ contribuinteId, exercicio, tipo, tributo }:
+  Pick<Divida, "contribuinteId" | "exercicio" | "tipo" | "tributo"> | any):
+  Promise<Divida[]> {
+  return prisma.divida.findMany({
+    where: {
+      exercicio,
+      tipo,
+      tributo
     },
     select: {
       id: true,

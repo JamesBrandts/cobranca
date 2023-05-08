@@ -16,6 +16,9 @@ export default function Header(props: { focus: String; user: User }) {
           <div><Link to="/cobrancas-status/Parcelada"><span className="text-blue-500 text-3xl">●</span> Parceladas</Link></div>
         </div>
       </div>
+      <div className={`text-xl font-bold ${focus === "tags" ? " underline" : ""}`}>
+        <Link to="/tags">Tags</Link>
+      </div>
       <div className={`text-xl font-bold ${focus === "contribuintes" ? " underline" : ""}`}>
         <Link to="/contribuintes">Contribuintes</Link>
       </div>

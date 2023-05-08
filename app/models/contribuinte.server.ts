@@ -1,4 +1,4 @@
-import type { Contribuinte } from "@prisma/client";
+import type { Contribuinte, Divida } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
@@ -31,3 +31,4 @@ export function getContribuintes(): Promise<Contribuinte[]> {
     },
   });
 }
+
