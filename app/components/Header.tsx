@@ -28,17 +28,33 @@ export default function Header(props: { focus: String; user: User }) {
       <div className={`text-xl font-bold ${focus === "atividades" ? " underline" : ""}`}>
         <Link to="/atividades">Atividades</Link>
       </div>
-      <div className="flex items-center text-white gap-4">
-        <p>{user.email}</p>
-        <Form action="/logout" method="post">
-          <button
-            type="submit"
-            className="rounded bg-slate-600 px-4 py-2 text-blue-100 hover:bg-blue-500 active:bg-blue-600"
-          >
-            Sair
-          </button>
-        </Form>
-      </div>
+      <div className="flex items-center">
+                <div className="user-name items-center">
+                    <p className="text-center">{user.email}</p>
+                    <div className="user-form w-16 sm:w-24 bg-slate-800 rounded-md">
+                        <div className="flex flex-col gap-2 p-1 sm:p-4 items-center">
+                            <Form action="/user-menu" method="post">
+                                <button
+                                    title="Menu"
+                                    type="submit"
+                                    className="rounded bg-slate-600 px-2 sm:px-4 py-1 w-20 hover:bg-slate-500 active:bg-slate-600"
+                                >
+                                  Menu                                    
+                                </button>
+                            </Form>
+                            <Form action="/logout" method="post">
+                                <button
+                                title="Sair"
+                                    type="submit"
+                                    className="rounded bg-slate-600 px-2 sm:px-4 py-1 w-20 hover:bg-slate-500 active:bg-slate-600"
+                                >
+                                    Sair
+                                </button>
+                            </Form>
+                        </div>
+                    </div>
+                </div>
+            </div>
     </header>
   )
 }

@@ -6,3 +6,20 @@
 #cobrancas:hover #cobrancas-menu {
     display: block;
 }
+
+.user-form {
+     display: none;
+
+ }
+
+ .user-name:hover .user-form {
+     display: block;
+     position: absolute;
+     right: 0;
+ }
+
+ .user-name:active .user-form {
+  display: block;
+  position: absolute;
+  right: 0;
+}
