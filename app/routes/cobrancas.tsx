@@ -20,7 +20,7 @@ export default function NotesPage() {
     <div className="flex h-full min-h-screen flex-col">
       <Header focus="cobrancas" user={user} />
       <main className="flex h-full bg-white">
-        <div className="h-full w-80 border-r bg-gray-50">
+        <div className="h-full w-80 border-r bg-gray-100">
           {cobrancas.length === 0 ? (
             <p className="p-4">Nenhuma cobrança disponível</p>
           ) : (
@@ -29,7 +29,7 @@ export default function NotesPage() {
                 <li key={cobranca.id}>
                   <NavLink
                     className={({ isActive }) =>
-                      `block border-b p-4 text-xl ${isActive ? "bg-white" : ""}`
+                      `block border-b p-4 text-xl ${isActive ? "bg-white" : "bg-gray-100"}`
                     }
                     to={cobranca.id}
                   >

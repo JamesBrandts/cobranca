@@ -116,8 +116,8 @@ model Cobranca {
 
   createdAt DateTime @default(now())
 
-  tag  Tag?   @relation(fields: [tagId], references: [id])
-  tagId String?
+  tag  Tag   @relation(fields: [tagId], references: [id])
+  tagId String
 }
 
 model Item {

@@ -2,6 +2,7 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   NavLink,
+  Outlet,
   isRouteErrorResponse,
   useLoaderData,
   useRouteError,
@@ -23,28 +24,31 @@ export default function NoteDetailsPage() {
   const { cobrancas }: { cobrancas: any[] } = useLoaderData<typeof loader>();
 
   return (
-    <div>
-      <ol>
-              {cobrancas.map((cobranca) => (
-                <li key={cobranca.id}>
-                  <NavLink
-                    className={({ isActive }) =>
-                      `block border-b p-4 text-xl ${isActive ? "bg-white" : ""}`
-                    }
-                    to={`/cobrancas/${cobranca.id}`}
-                  >
-                    <span className={
-                      cobranca.status === "Pendente" ? "text-red-500 text-3xl" :
-                        cobranca.status === "Parcialmente Convertida" ? "text-orange-500 text-3xl" :
-                          cobranca.status === "Convertida" ? "text-yellow-500 text-3xl" :
-                            cobranca.status === "Paga" ? "text-green-500 text-3xl" :
-                              cobranca.status === "Parcelada" ? "text-blue-500 text-3xl" :
-                                "text-black-500 text-3xl"}
-                    >●</span> {cobranca.contribuinte.nome}
-                  </NavLink>
-                </li>
-              ))}
-            </ol>
+    <div className="flex">
+      <ol className="w-60">
+        {cobrancas.map((cobranca) => (
+          <li key={cobranca.id}>
+            <NavLink
+              className={({ isActive }) =>
+                `block border-b p-4 text-xl ${isActive ? "bg-white" : "bg-gray-100"}`
+              }
+              to={`${cobranca.id}`}
+            >
+              <span className={
+                cobranca.status === "Pendente" ? "text-red-500 text-3xl" :
+                  cobranca.status === "Parcialmente Convertida" ? "text-orange-500 text-3xl" :
+                    cobranca.status === "Convertida" ? "text-yellow-500 text-3xl" :
+                      cobranca.status === "Paga" ? "text-green-500 text-3xl" :
+                        cobranca.status === "Parcelada" ? "text-blue-500 text-3xl" :
+                          "text-black-500 text-3xl"}
+              >●</span> {cobranca.contribuinte.nome}
+            </NavLink>
+          </li>
+        ))}
+      </ol>
+      <div className="p-6">
+        <Outlet />
+      </div>
     </div>
   );
 }

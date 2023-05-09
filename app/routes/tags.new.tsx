@@ -52,7 +52,7 @@ export const action = async ({ request }: ActionArgs) => {
     });
   });
 
-  if (preencheuFiltro) {
+  if (!preencheuFiltro) {
     await deleteTag({id:tag.id});
     return json(
       { errors: { users: "Nenhuma dívida encontrada com os filtros selecionados", nome: null } },
