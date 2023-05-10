@@ -115,7 +115,7 @@ export function getDividaPorEconomiaId({ economiaId }: { economiaId: Economia["i
 
 
 
-export function advancedFilter({ exercicio, tipo, tributo, tributoTipo, exercicioTipo, tipoTipo }:
+export function advancedFilter({ exercicio, tipo, tributo, contribuinte }:
   Pick<Divida, "exercicio" | "tipo" | "tributo"> | any):
   Promise<Divida[]> {
   return prisma.divida.findMany({
@@ -123,6 +123,7 @@ export function advancedFilter({ exercicio, tipo, tributo, tributoTipo, exercici
       exercicio,
       tipo,
       tributo,
+      contribuinte
     },
     select: {
       id: true,

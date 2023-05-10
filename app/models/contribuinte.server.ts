@@ -13,6 +13,7 @@ export function getContribuinte({ id }: Pick<Contribuinte, "id">):
       email: true,
       createdAt: true,
       updatedAt: true,
+      dividas: true,
     },
     where: { id },
   });
@@ -28,7 +29,23 @@ export function getContribuintes(): Promise<Contribuinte[]> {
       email: true,
       createdAt: true,
       updatedAt: true,
+      dividas: true,
     },
   });
 }
 
+export function filtroContribuintes({where}:any){
+  return prisma.contribuinte.findMany({
+    where,
+    select: {
+      id: true,
+      nome: true,
+      cpf_cnpj: true,
+      telefone: true,
+      email: true,
+      createdAt: true,
+      updatedAt: true,
+      dividas: true,
+    },
+  })
+}

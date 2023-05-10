@@ -4,7 +4,8 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 import { createCobranca } from "~/models/cobranca.server";
-import { filter } from "~/models/divida.server";
+import { filtroContribuintes } from "~/models/contribuinte.server";
+import { advancedFilter, filter } from "~/models/divida.server";
 import { createItem } from "~/models/item.server";
 
 import { createTag, deleteTag } from "~/models/tag.server";
@@ -24,7 +25,6 @@ export const action = async ({ request }: ActionArgs) => {
   const exercicioMax = Number(formData.get("exercicioMax")) || 9999;
   const tributo = formData.get("tributo");
   const allUserIds = users.map((user) => `${formData.get(user.id)}`);
-  // const valorTipo = formData.get("valorTipo");
   const exercicioTipo = formData.get("exercicioTipo");
   const tipoTipo = formData.get("tipoTipo");
   const tributoTipo = formData.get("tributoTipo");
@@ -43,35 +43,55 @@ export const action = async ({ request }: ActionArgs) => {
       { status: 400 }
     );
   }
-  const tag = await createTag({ nome, userIds })
-  let preencheuFiltro = false;
-  const filtroTributo = tributo !== "todos" ? tributo : { not: '' };
-  const filtroTipo = tipo !== "todos" ? tipo : { not: '' };
-  const exercicio = exercicioTipo === "Selecionar" ? { gte: exercicioMin, lte: exercicioMax } : { gte: 0, lte: Number.MAX_SAFE_INTEGER };
-  const contribuinte = exercicioTipo === "Selecionar" ? {dividas: {some: {exercicio: { gte: exercicioMin, lte: exercicioMax }}}}: {dividas:{some:{exercicio:{NOT:{ gte: exercicioMax, lt: exercicioMin} }}
-    }
-  }
-  const dividas = await filter({ tributo: filtroTributo, tipo: filtroTipo, exercicio});
-  const contribuinteIds = new Set(dividas.map((divida) => divida.contribuinteId));
-  contribuinteIds.forEach(async (contribuinteId) => {
-    const dividasContribuinte = dividas.filter((divida) => divida.contribuinteId === contribuinteId);
-    const dividasContribuinteValor = dividasContribuinte.map((divida) => divida.valor).reduce((a, b) => a + b, 0);
-    if (dividasContribuinteValor < minValor || dividasContribuinteValor > maxValor) return;
-    preencheuFiltro = true;
-    const cobranca = await createCobranca({ contribuinteId, tagId: tag.id, userIds });
-    dividasContribuinte.forEach(async (divida) => {
-      await createItem({ cobrancaId: cobranca.id, dividaId: divida.id });
-    });
-  });
+  
+const tributoFiltro = tributoTipo !== "Exclusivo" ? { in: tributo } : { notIn: tributo }
+  const where = exercicioTipo !== "Exclusivo" ?
+    { dividas: { some: { exercicio: { gte: exercicioMin, lte: exercicioMax }, tributo:tributoFiltro } }}
+    :
+    { NOT: { dividas: { some: { exercicio: { lt: exercicioMin}, tributo:tributoFiltro } } }}
+
+
+  const contribuintes = await filtroContribuintes({ where })
+  console.log({ contribuintes, length: contribuintes.length, where, divdas: where.dividas, exercicioTipo, exercicioMin, exercicioMax, sample: contribuintes[0].dividas })
+  return redirect(".")
+  //const tag = await createTag({ nome, userIds })
+  //let preencheuFiltro = false;
+  // const filtroTributo = tributo !== "todos" ? tributo : { not: '' };
+  // const filtroTipo = tipo !== "todos" ? tipo : { not: '' };
+  // const exercicio = exercicioTipo === "Selecionar" ? { gte: exercicioMin, lte: exercicioMax } : { gte: 0, lte: Number.MAX_SAFE_INTEGER };
+  // const contribuinte = exercicioTipo !== "Exclusivo" ?
+  //   {
+  //     dividas: {
+  //       some: { exercicio: { gte: exercicioMin, lte: exercicioMax } }
+  //     }
+  //   } : {
+  //     dividas: {
+  //      some: { NOT:{ exercicio: { gt: exercicioMax, lt: exercicioMin } } }
+  //     }
+  //   }
+  // const dividas = await filter({ tributo: filtroTributo, tipo: filtroTipo, exercicio });
+  // const dividas2 = await advancedFilter({ tributo: filtroTributo, tipo: filtroTipo, exercicio, contribuinte });
+  // console.log({ dividas2, contribuinte });
   // return redirect(`.`);
-  if (!preencheuFiltro) {
-    await deleteTag({ id: tag.id });
-    return json(
-      { errors: { users: "Nenhuma dívida encontrada com os filtros selecionados", nome: null } },
-      { status: 400 }
-    );
-  }
-  return redirect(`/tags/${tag.id}`);
+  // const contribuinteIds = new Set(dividas.map((divida) => divida.contribuinteId));
+  // contribuinteIds.forEach(async (contribuinteId) => {
+  //   const dividasContribuinte = dividas.filter((divida) => divida.contribuinteId === contribuinteId);
+  //   const dividasContribuinteValor = dividasContribuinte.map((divida) => divida.valor).reduce((a, b) => a + b, 0);
+  //   if (dividasContribuinteValor < minValor || dividasContribuinteValor > maxValor) return;
+  //   preencheuFiltro = true;
+  //   const cobranca = await createCobranca({ contribuinteId, tagId: tag.id, userIds });
+  //   dividasContribuinte.forEach(async (divida) => {
+  //     await createItem({ cobrancaId: cobranca.id, dividaId: divida.id });
+  //   });
+  // });
+  // if (!preencheuFiltro) {
+  //   await deleteTag({ id: tag.id });
+  //   return json(
+  //     { errors: { users: "Nenhuma dívida encontrada com os filtros selecionados", nome: null } },
+  //     { status: 400 }
+  //   );
+  // }
+  // return redirect(`/tags/${tag.id}`);
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -210,44 +230,44 @@ export default function NewTagPage() {
           <label><input type="radio" name="exercicioTipo" value="Conter" /> Conter</label>
         </div>
       </div>
-<div className="flex gap-8">
-      <div className="flex gap-4 pt-4">
-        <div>
-          <label className="flex w-full flex-col gap-1">
-            <span>Tributo: </span>
-            <select ref={tributoRef} name="tributo" className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose">
-              <option value="todos">Todos</option>
-              <option value="IPTU">IPTU</option>
-              <option value="ISSV">ISSV</option>
-              <option value="ISSQN">ISSQN</option>
-              <option value="ISSO">ISSO</option>
-              <option value="ITBI">ITBI</option>
-            </select>
-          </label>
+      <div className="flex gap-8">
+        <div className="flex gap-4 pt-4">
+          <div>
+            <label className="flex w-full flex-col gap-1">
+              <span>Tributo: </span>
+              <select ref={tributoRef} name="tributo" className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose">
+                <option value="todos">Todos</option>
+                <option value="IPTU">IPTU</option>
+                <option value="ISSV">ISSV</option>
+                <option value="ISSQN">ISSQN</option>
+                <option value="ISSO">ISSO</option>
+                <option value="ITBI">ITBI</option>
+              </select>
+            </label>
+          </div>
+          <div className="flex-col flex">
+            <label><input type="radio" name="tributoTipo" value="Exclusivo" /> Exclusivo</label>
+            <label><input type="radio" name="tributoTipo" value="Selecionar" defaultChecked /> Selecionar</label>
+            <label><input type="radio" name="tributoTipo" value="Conter" /> Conter</label>
+          </div>
         </div>
-        <div className="flex-col flex">
-          <label><input type="radio" name="tributoTipo" value="Exclusivo" /> Exclusivo</label>
-          <label><input type="radio" name="tributoTipo" value="Selecionar" defaultChecked /> Selecionar</label>
-          <label><input type="radio" name="tributoTipo" value="Conter" /> Conter</label>
+        <div className="flex gap-4 pt-4">
+          <div>
+            <label className="flex w-full flex-col gap-1">
+              <span>Tipo: </span>
+              <select ref={tipoRef} name="tipo" className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose">
+                <option value="todos">Todos</option>
+                <option value="N">N</option>
+                <option value="P">P</option>
+              </select>
+            </label>
+          </div>
+          <div className="flex-col flex">
+            <label><input type="radio" name="tipoTipo" value="Exclusivo" /> Exclusivo</label>
+            <label><input type="radio" name="tipoTipo" value="Selecionar" defaultChecked /> Selecionar</label>
+            <label><input type="radio" name="tipoTipo" value="Conter" /> Conter</label>
+          </div>
         </div>
-      </div>
-      <div className="flex gap-4 pt-4">
-        <div>
-          <label className="flex w-full flex-col gap-1">
-            <span>Tipo: </span>
-            <select ref={tipoRef} name="tipo" className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose">
-              <option value="todos">Todos</option>
-              <option value="N">N</option>
-              <option value="P">P</option>
-            </select>
-          </label>
-        </div>
-        <div className="flex-col flex">
-          <label><input type="radio" name="tipoTipo" value="Exclusivo" /> Exclusivo</label>
-          <label><input type="radio" name="tipoTipo" value="Selecionar" defaultChecked /> Selecionar</label>
-          <label><input type="radio" name="tipoTipo" value="Conter" /> Conter</label>
-        </div>
-      </div>
       </div>
       <div className="pt-4">
         <button
