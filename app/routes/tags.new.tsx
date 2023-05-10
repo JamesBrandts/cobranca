@@ -2,19 +2,23 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
+import invariant from "tiny-invariant";
 import { createCobranca } from "~/models/cobranca.server";
 import { advancedFilter } from "~/models/divida.server";
 import { createItem } from "~/models/item.server";
 
 import { createTag, deleteTag } from "~/models/tag.server";
 import { getUsersList } from "~/models/user.server";
+import { getUser } from "~/session.server";
 
 export const action = async ({ request }: ActionArgs) => {
+  const user = await getUser(request);
+  invariant(user?.isAdmin, "Acesso Negado");
   const formData = await request.formData();
   const users = await getUsersList();
   const nome = formData.get("nome");
-  const minValor = Number(formData.get("minValor"))*100 || 0;
-  const maxValor = Number(formData.get("maxValor"))*100 || Number.MAX_SAFE_INTEGER;
+  const minValor = Number(formData.get("minValor")) * 100 || 0;
+  const maxValor = Number(formData.get("maxValor")) * 100 || Number.MAX_SAFE_INTEGER;
   const tipo = formData.get("tipo");
   const exercicioMin = Number(formData.get("exercicioMin")) || 0;;
   const exercicioMax = Number(formData.get("exercicioMax")) || 9999;
@@ -53,7 +57,7 @@ export const action = async ({ request }: ActionArgs) => {
   });
 
   if (!preencheuFiltro) {
-    await deleteTag({id:tag.id});
+    await deleteTag({ id: tag.id });
     return json(
       { errors: { users: "Nenhuma dívida encontrada com os filtros selecionados", nome: null } },
       { status: 400 }
@@ -90,6 +94,7 @@ export default function NewTagPage() {
 
   return (
     <Form
+      className="p-6"
       method="post"
       style={{
         display: "flex",
