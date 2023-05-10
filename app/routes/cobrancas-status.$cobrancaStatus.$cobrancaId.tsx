@@ -50,7 +50,7 @@ export default function NoteDetailsPage() {
       <p className="py-2 ">Dívida Total Cobranca: <span className="font-bold text-xl">{`R$ ${Math.floor(total / 100)},${total % 100}`}</span></p>
       <hr className="my-4" />
       <div>
-        <p>Status da Cobrança: {cobranca.status}</p>
+        {/* <p>Status da Cobrança: {cobranca.status}</p> */}
         <div className="flex gap-2 items-center">
           <Form action="./Pendente" method="post">
             <button
