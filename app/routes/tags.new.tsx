@@ -47,7 +47,11 @@ export const action = async ({ request }: ActionArgs) => {
   let preencheuFiltro = false;
   const filtroTributo = tributo !== "todos" ? tributo : { not: '' };
   const filtroTipo = tipo !== "todos" ? tipo : { not: '' };
-  const dividas = await filter({ tributo: filtroTributo, tipo: filtroTipo, exercicio: { gte: exercicioMin, lte: exercicioMax } });
+  const exercicio = exercicioTipo === "Selecionar" ? { gte: exercicioMin, lte: exercicioMax } : { gte: 0, lte: Number.MAX_SAFE_INTEGER };
+  const contribuinte = exercicioTipo === "Selecionar" ? {dividas: {some: {exercicio: { gte: exercicioMin, lte: exercicioMax }}}}: {dividas:{some:{exercicio:{NOT:{ gte: exercicioMax, lt: exercicioMin} }}
+    }
+  }
+  const dividas = await filter({ tributo: filtroTributo, tipo: filtroTipo, exercicio});
   const contribuinteIds = new Set(dividas.map((divida) => divida.contribuinteId));
   contribuinteIds.forEach(async (contribuinteId) => {
     const dividasContribuinte = dividas.filter((divida) => divida.contribuinteId === contribuinteId);
