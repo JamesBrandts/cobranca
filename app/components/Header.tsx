@@ -33,7 +33,7 @@ export default function Header(props: { focus: String; user: User }) {
                     <p className="text-center">{user.email}</p>
                     <div className="user-form w-16 sm:w-24 bg-slate-800 rounded-md">
                         <div className="flex flex-col gap-2 p-1 sm:p-4 items-center">
-                            <Form action="/user-menu" method="post">
+                            <Form action="/user-menu" method="get">
                                 <button
                                     title="Menu"
                                     type="submit"

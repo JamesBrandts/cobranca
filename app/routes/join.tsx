@@ -54,7 +54,7 @@ export const action = async ({ request }: ActionArgs) => {
   }
 
   const user = await createUser(email, password);
-
+  if(!user) return json({ errors: { email: "Something went wrong", password: null } }, { status: 400 });
   return createUserSession({
     redirectTo,
     remember: false,
