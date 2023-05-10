@@ -4,7 +4,7 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 import { createCobranca } from "~/models/cobranca.server";
-import { advancedFilter } from "~/models/divida.server";
+import { filter } from "~/models/divida.server";
 import { createItem } from "~/models/item.server";
 
 import { createTag, deleteTag } from "~/models/tag.server";
@@ -24,6 +24,10 @@ export const action = async ({ request }: ActionArgs) => {
   const exercicioMax = Number(formData.get("exercicioMax")) || 9999;
   const tributo = formData.get("tributo");
   const allUserIds = users.map((user) => `${formData.get(user.id)}`);
+  // const valorTipo = formData.get("valorTipo");
+  const exercicioTipo = formData.get("exercicioTipo");
+  const tipoTipo = formData.get("tipoTipo");
+  const tributoTipo = formData.get("tributoTipo");
 
   if (typeof nome !== "string" || nome.length === 0) {
     return json(
@@ -43,7 +47,7 @@ export const action = async ({ request }: ActionArgs) => {
   let preencheuFiltro = false;
   const filtroTributo = tributo !== "todos" ? tributo : { not: '' };
   const filtroTipo = tipo !== "todos" ? tipo : { not: '' };
-  const dividas = await advancedFilter({ tributo: filtroTributo, tipo: filtroTipo, exercicio: { gte: exercicioMin, lte: exercicioMax } });
+  const dividas = await filter({ tributo: filtroTributo, tipo: filtroTipo, exercicio: { gte: exercicioMin, lte: exercicioMax } });
   const contribuinteIds = new Set(dividas.map((divida) => divida.contribuinteId));
   contribuinteIds.forEach(async (contribuinteId) => {
     const dividasContribuinte = dividas.filter((divida) => divida.contribuinteId === contribuinteId);
@@ -55,7 +59,7 @@ export const action = async ({ request }: ActionArgs) => {
       await createItem({ cobrancaId: cobranca.id, dividaId: divida.id });
     });
   });
-
+  // return redirect(`.`);
   if (!preencheuFiltro) {
     await deleteTag({ id: tag.id });
     return json(
@@ -63,7 +67,6 @@ export const action = async ({ request }: ActionArgs) => {
       { status: 400 }
     );
   }
-
   return redirect(`/tags/${tag.id}`);
 };
 
@@ -167,9 +170,14 @@ export default function NewTagPage() {
             />
           </label>
         </div>
+        {/* <div className="flex-col flex">
+          <label><input type="radio" name="valorTipo" value="Exclusivo" /> Exclusivo</label>
+          <label><input type="radio" name="valorTipo" value="Selecionar" defaultChecked /> Selecionar</label>
+          <label><input type="radio" name="valorTipo" value="Conter" /> Conter</label>
+        </div> */}
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-4 pt-2">
         <div>
           <label className="flex w-full flex-col gap-1">
             <span>Exercício Mínimo: </span>
@@ -192,9 +200,14 @@ export default function NewTagPage() {
             />
           </label>
         </div>
+        <div className="flex-col flex">
+          <label><input type="radio" name="exercicioTipo" value="Exclusivo" /> Exclusivo</label>
+          <label><input type="radio" name="exercicioTipo" value="Selecionar" defaultChecked /> Selecionar</label>
+          <label><input type="radio" name="exercicioTipo" value="Conter" /> Conter</label>
+        </div>
       </div>
-
-      <div className="flex gap-4">
+<div className="flex gap-8">
+      <div className="flex gap-4 pt-4">
         <div>
           <label className="flex w-full flex-col gap-1">
             <span>Tributo: </span>
@@ -208,7 +221,13 @@ export default function NewTagPage() {
             </select>
           </label>
         </div>
-
+        <div className="flex-col flex">
+          <label><input type="radio" name="tributoTipo" value="Exclusivo" /> Exclusivo</label>
+          <label><input type="radio" name="tributoTipo" value="Selecionar" defaultChecked /> Selecionar</label>
+          <label><input type="radio" name="tributoTipo" value="Conter" /> Conter</label>
+        </div>
+      </div>
+      <div className="flex gap-4 pt-4">
         <div>
           <label className="flex w-full flex-col gap-1">
             <span>Tipo: </span>
@@ -219,9 +238,14 @@ export default function NewTagPage() {
             </select>
           </label>
         </div>
+        <div className="flex-col flex">
+          <label><input type="radio" name="tipoTipo" value="Exclusivo" /> Exclusivo</label>
+          <label><input type="radio" name="tipoTipo" value="Selecionar" defaultChecked /> Selecionar</label>
+          <label><input type="radio" name="tipoTipo" value="Conter" /> Conter</label>
+        </div>
       </div>
-
-      <div className="text-right">
+      </div>
+      <div className="pt-4">
         <button
           type="submit"
           className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"

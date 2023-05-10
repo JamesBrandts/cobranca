@@ -115,6 +115,35 @@ export function getDividaPorEconomiaId({ economiaId }: { economiaId: Economia["i
 
 
 
+export function filter({ exercicio, tipo, tributo }:
+  Pick<Divida, "exercicio" | "tipo" | "tributo"> | any):
+  Promise<Divida[]> {
+  return prisma.divida.findMany({
+    where: {
+      exercicio,
+      tipo,
+      tributo
+    },
+    select: {
+      id: true,
+      contribuinteId: true,
+      economiaId: true,
+      atividadeId: true,
+      exercicio: true,
+      parcela: true,
+      tipo: true,
+      tributo: true,
+      valor: true,
+      vencimento: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: {
+      contribuinteId: "asc"
+    },
+  });
+}
+
 export function advancedFilter({ exercicio, tipo, tributo }:
   Pick<Divida, "exercicio" | "tipo" | "tributo"> | any):
   Promise<Divida[]> {
