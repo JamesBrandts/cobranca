@@ -6,7 +6,7 @@ import invariant from "tiny-invariant";
 import { createCobranca } from "~/models/cobranca.server";
 import { filtroContribuintes } from "~/models/contribuinte.server";
 import { advancedFilter, filter } from "~/models/divida.server";
-import { createItem } from "~/models/item.server";
+import { createItem, createManyItems } from "~/models/item.server";
 
 import { createTag, deleteTag } from "~/models/tag.server";
 import { getUsersList } from "~/models/user.server";
@@ -43,55 +43,61 @@ export const action = async ({ request }: ActionArgs) => {
       { status: 400 }
     );
   }
-  
-const tributoFiltro = tributoTipo !== "Exclusivo" ? { in: tributo } : { notIn: tributo }
-  const where = exercicioTipo !== "Exclusivo" ?
-    { dividas: { some: { exercicio: { gte: exercicioMin, lte: exercicioMax }, tributo:tributoFiltro } }}
-    :
-    { NOT: { dividas: { some: { exercicio: { lt: exercicioMin}, tributo:tributoFiltro } } }}
+
+  const where = {
+    dividas: {
+      some: {
+        exercicio: { gte: exercicioMin, lte: exercicioMax },
+        tributo: tributo !== "todos" ? tributo : {},
+        tipo: tipo !== "todos" ? tipo : {},
+      },
+      every: {
+        exercicio: exercicioTipo === "Exclusivo" ? { gte: exercicioMin, lte: exercicioMax } : {},
+        tributo: tributo !== "todos" && tributoTipo === "Exclusivo" ? tributo : {},
+        tipo: tipo !== "todos" && tipoTipo === "Exclusivo" ? tipo : {},
+      }
+    }
+  }
+  let contribuintes = await filtroContribuintes({ where });
+  if (exercicioTipo === "Selecionar") {
+    contribuintes.map((contribuinte) =>
+      contribuinte.dividas = contribuinte.dividas.filter((divida) => divida.exercicio >= exercicioMin && divida.exercicio <= exercicioMax))
+  }
+  if (tipoTipo === "Selecionar" && tipo !== "todos") {
+    contribuintes.map((contribuinte) =>
+      contribuinte.dividas = contribuinte.dividas.filter((divida) => divida.tipo === tipo))
+  }
+  if (tributoTipo === "Selecionar" && tributo !== "todos") {
+    contribuintes.map((contribuinte) =>
+      contribuinte.dividas = contribuinte.dividas.filter((divida) => divida.tributo === tributo))
+  }
+
+  contribuintes = contribuintes.filter((contribuinte) => contribuinte.dividas.reduce((sum, divida) => sum + divida.valor, 0) >= minValor && contribuinte.dividas.reduce((sum, divida) => sum + divida.valor, 0) <= maxValor)
 
 
-  const contribuintes = await filtroContribuintes({ where })
-  console.log({ contribuintes, length: contribuintes.length, where, divdas: where.dividas, exercicioTipo, exercicioMin, exercicioMax, sample: contribuintes[0].dividas })
-  return redirect(".")
-  //const tag = await createTag({ nome, userIds })
-  //let preencheuFiltro = false;
-  // const filtroTributo = tributo !== "todos" ? tributo : { not: '' };
-  // const filtroTipo = tipo !== "todos" ? tipo : { not: '' };
-  // const exercicio = exercicioTipo === "Selecionar" ? { gte: exercicioMin, lte: exercicioMax } : { gte: 0, lte: Number.MAX_SAFE_INTEGER };
-  // const contribuinte = exercicioTipo !== "Exclusivo" ?
-  //   {
-  //     dividas: {
-  //       some: { exercicio: { gte: exercicioMin, lte: exercicioMax } }
-  //     }
-  //   } : {
-  //     dividas: {
-  //      some: { NOT:{ exercicio: { gt: exercicioMax, lt: exercicioMin } } }
-  //     }
-  //   }
-  // const dividas = await filter({ tributo: filtroTributo, tipo: filtroTipo, exercicio });
-  // const dividas2 = await advancedFilter({ tributo: filtroTributo, tipo: filtroTipo, exercicio, contribuinte });
-  // console.log({ dividas2, contribuinte });
-  // return redirect(`.`);
-  // const contribuinteIds = new Set(dividas.map((divida) => divida.contribuinteId));
-  // contribuinteIds.forEach(async (contribuinteId) => {
-  //   const dividasContribuinte = dividas.filter((divida) => divida.contribuinteId === contribuinteId);
-  //   const dividasContribuinteValor = dividasContribuinte.map((divida) => divida.valor).reduce((a, b) => a + b, 0);
-  //   if (dividasContribuinteValor < minValor || dividasContribuinteValor > maxValor) return;
-  //   preencheuFiltro = true;
-  //   const cobranca = await createCobranca({ contribuinteId, tagId: tag.id, userIds });
-  //   dividasContribuinte.forEach(async (divida) => {
-  //     await createItem({ cobrancaId: cobranca.id, dividaId: divida.id });
-  //   });
-  // });
-  // if (!preencheuFiltro) {
-  //   await deleteTag({ id: tag.id });
-  //   return json(
-  //     { errors: { users: "Nenhuma dívida encontrada com os filtros selecionados", nome: null } },
-  //     { status: 400 }
-  //   );
-  // }
-  // return redirect(`/tags/${tag.id}`);
+  if (contribuintes.length === 0) {
+    return json(
+      { errors: { users: "Nenhum Contribuinte encontrado", nome: null } },
+      { status: 400 }
+    );
+  }
+  const tag = await createTag({ nome, userIds, })
+
+  contribuintes.forEach(async (contribuinte) => {
+    const cobranca = await createCobranca({
+      contribuinteId: contribuinte.id,
+      tagId: tag.id,
+      userIds
+    })
+    await createManyItems({
+      items: contribuinte.dividas.map((divida) => ({
+        dividaId: divida.id,
+        cobrancaId: cobranca.id,
+        status: "pendente",
+      }))
+    })
+  })
+  return redirect(`/tags/${tag.id}`);
 };
 
 export const loader = async ({ request }: LoaderArgs) => {

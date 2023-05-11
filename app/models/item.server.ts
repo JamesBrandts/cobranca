@@ -83,6 +83,36 @@ export function createItem({
   });
 }
 
+// Does not work on SQLite, may work on PostgreSQL
+// export function createManyItems({items}: {items: Item[]}) {
+//   return prisma.item.createMany({
+//     data: items,
+//   });
+// }
+
+// SQLite workaround
+export async function createManyItems({ items }: { items: { dividaId: any; cobrancaId: any; }[]}) {
+  return prisma.$transaction(
+    items.map((item: { dividaId: any; cobrancaId: any; }) =>
+      prisma.item.create({
+        data: {
+          divida: {
+            connect: {
+              id: item.dividaId,
+            },
+          },
+          cobranca: {
+            connect: {
+              id: item.cobrancaId,
+            },
+          },
+          status: "pendente",
+        },
+      })
+    )
+  );
+}
+
 export function deleteItem({
   id,
   cobrancaId,
