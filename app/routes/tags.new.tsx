@@ -5,10 +5,9 @@ import { useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 import { createCobranca } from "~/models/cobranca.server";
 import { filtroContribuintes } from "~/models/contribuinte.server";
-import { advancedFilter, filter } from "~/models/divida.server";
-import { createItem, createManyItems } from "~/models/item.server";
+import { createManyItems } from "~/models/item.server";
 
-import { createTag, deleteTag } from "~/models/tag.server";
+import { createTag } from "~/models/tag.server";
 import { getUsersList } from "~/models/user.server";
 import { getUser } from "~/session.server";
 
