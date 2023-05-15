@@ -16,3 +16,9 @@ export function getAtividades(): Promise<Atividade[]>{
     select: { id: true, dividas: true, contribuinte: true, contribuinteId: true },
   });
 }
+
+export function createAtividade({id, contribuinteId}: any): Promise<Atividade>{
+  return prisma.atividade.create({
+    data: { id, contribuinteId },
+  });
+}

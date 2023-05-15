@@ -49,3 +49,15 @@ export function filtroContribuintes({where}:any){
     },
   })
 }
+
+export function createContribuinte({
+  id,
+  nome,
+  cpf_cnpj,
+  telefone,
+  email,
+} : any): Promise<Contribuinte> {
+  return prisma.contribuinte.create({
+    data: { id, nome, cpf_cnpj, telefone, email },
+  });
+}

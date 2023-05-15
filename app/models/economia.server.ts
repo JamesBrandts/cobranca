@@ -16,3 +16,9 @@ export function getEconomias(): Promise<Economia[]> {
     select: { id: true, dividas: true, contribuinte: true, contribuinteId: true },
   });
 }
+
+export function createEconomia({id, contribuinteId}: any): Promise<Economia> {
+  return prisma.economia.create({
+    data: { id, contribuinteId },
+  });
+}
