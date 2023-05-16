@@ -64,14 +64,12 @@ export const action: ActionFunction = async ({ request }) => {
   }
   const tag = await createTag({ nome, userIds, });
   const table = fileContents.split("\n").map((line: string) => line.split("\t"));
-  let cobranca: {
-    id: string; contribuinteId: string;
-  } | null = null;
+  let cobranca: any | null;
 
   table.map(async (line: string[]) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [economiaId, exercicio, CDIMPOSTO, tributo, parcela, tipo, STPARCELAMENTO, BASEDECALCULO, TPPESSOA, contribuinteId, DSSTIMPOSTO, createdAt, NR_PARCELAMENTO, DATA_PARCELAMENTO, NRPROCESSO_JUDICIAL, DATA_ENTRADA, vencimento, MNEIMPOSTO, valor] = line;
-    let contribuinte = await getContribuinte({ id: contribuinteId });
+    let contribuinte = await getContribuinte({ id: contribuinteId });    
     let economia = await getEconomia({ id: economiaId });
     if (!contribuinte) {
       contribuinte = await createContribuinte({
@@ -89,9 +87,9 @@ export const action: ActionFunction = async ({ request }) => {
       });
     }
     if (!cobranca || cobranca?.contribuinteId !== contribuinteId)
-      cobranca = await createCobranca({ contribuinteId, userIds, tagId: tag.id })
+      cobranca = await createCobranca({ contribuinteId:contribuinteId??contribuinte.id, userIds, tagId: tag.id })
 
-    const divida = await createDivida({ contribuinteId, economiaId, exercicio: Number(exercicio), parcela: Number(parcela), tipo, tributo, valor: Number(valor), vencimento: new Date(vencimento), createdAt: new Date(createdAt) })
+    const divida = await createDivida({ contribuinteId, economiaId, exercicio: Number(exercicio), parcela: Number(parcela), tipo, tributo, valor: Number(valor.replace("\r","").replace(",","")), vencimento: new Date(vencimento), createdAt: new Date(createdAt) })
     await createItem({ dividaId: divida.id, cobrancaId: cobranca?.id })
 
   });
