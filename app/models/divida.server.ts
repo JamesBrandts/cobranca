@@ -173,3 +173,35 @@ export function filter({ exercicio, tipo, tributo }:
     },
   });
 }
+
+export function createDivida({ contribuinteId, economiaId, exercicio, parcela, tipo, tributo, valor, vencimento, createdAt }:
+  Pick<Divida, "contribuinteId" | "economiaId" | "exercicio" | "parcela" | "tipo" | "tributo" | "valor" | "vencimento" | "createdAt">)
+  : Promise<Divida> {
+  return prisma.divida.create({
+    data: {
+      contribuinteId,
+      economiaId,
+      exercicio,
+      parcela,
+      tipo,
+      tributo,
+      valor,
+      vencimento,
+      createdAt
+    },
+    select: {
+      id: true,
+      contribuinteId: true,
+      economiaId: true,
+      atividadeId: true,
+      exercicio: true,
+      parcela: true,
+      tipo: true,
+      tributo: true,
+      valor: true,
+      vencimento: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+}

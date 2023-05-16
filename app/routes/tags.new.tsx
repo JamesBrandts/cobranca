@@ -27,7 +27,7 @@ export const action = async ({ request }: ActionArgs) => {
   const exercicioTipo = formData.get("exercicioTipo");
   const tipoTipo = formData.get("tipoTipo");
   const tributoTipo = formData.get("tributoTipo");
-
+  const userIds = allUserIds.filter((userId) => userId !== 'null');
   if (typeof nome !== "string" || nome.length === 0) {
     return json(
       { errors: { users: null, nome: "Nome da Tag é Obrigatório" } },
@@ -35,7 +35,7 @@ export const action = async ({ request }: ActionArgs) => {
     );
   }
 
-  const userIds = allUserIds.filter((userId) => userId !== 'null');
+  
   if (userIds.length === 0) {
     return json(
       { errors: { users: "Seleciona pelo menos um Usuário", nome: null } },
