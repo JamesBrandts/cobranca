@@ -19,8 +19,8 @@ export default function NotesPage() {
   return (
     <div className="flex h-full min-h-screen flex-col">
       <Header focus="cobrancas" user={user} />
-      <main className="flex h-full bg-white">
-        <div className="h-full w-80 border-r bg-gray-100">
+      <main className="bg-white inline-flex">
+        <div className="w-80 border-r bg-gray-100 overflow-auto">
           {cobrancas.length === 0 ? (
             <p className="p-4">Nenhuma cobrança disponível</p>
           ) : (

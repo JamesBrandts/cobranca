@@ -24,8 +24,8 @@ export default function NoteDetailsPage() {
   const { cobrancas }: { cobrancas: any[] } = useLoaderData<typeof loader>();
 
   return (
-    <div className="flex">
-      <ol className="w-60">
+    <div className="flex h-full">
+      <ol className="w-60 overflow-auto h-full">
         {cobrancas.map((cobranca) => (
           <li key={cobranca.id}>
             <NavLink

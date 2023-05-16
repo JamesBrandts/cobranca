@@ -7,7 +7,7 @@ export default function UserMenu() {
   return (
     <div>
       <Header user={user} focus="" />
-      <div className="flex">
+      <div className="inline-flex h-full">
         <div className="h-full w-60 border-r bg-gray-100">
           <NavLink to="password"
             className={({ isActive }) =>

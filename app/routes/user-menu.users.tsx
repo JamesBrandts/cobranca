@@ -16,9 +16,9 @@ export default function UserMenu() {
   return (
     <div>
       {user.isAdmin ?
-        <div className="flex">
+        <div className="inline-flex h-full">
           <div className="h-full w-60 border-r bg-gray-100">
-            <ol>
+            <ol className="w-60 overflow-auto h-full">
               {users.map((user) => (
                 <li key={user.id}>
                   <NavLink

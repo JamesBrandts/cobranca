@@ -20,7 +20,7 @@ export default function NotesPage() {
       <Header focus="contribuintes" user={user} />
 
       <main className="flex h-full bg-white">
-        <div className="h-full w-80 border-r bg-gray-50">
+        <div className="h-full w-80 border-r bg-gray-50 overflow-auto">
           {contribuintes.length === 0 ? (
             <p className="p-4">No notes yet</p>
           ) : (

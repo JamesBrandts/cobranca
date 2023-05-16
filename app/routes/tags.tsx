@@ -21,7 +21,7 @@ export default function TagsPage() {
     <div className="flex h-full min-h-screen flex-col">
       <Header user={user} focus="tags" />
       <main className="flex h-full bg-white">
-        <div className="h-full w-60 border-r bg-gray-100">
+        <div className="h-full w-60 border-r bg-gray-100 overflow-auto">
           {user.isAdmin &&
             <Link to="new" className="block p-4 text-xl text-blue-500">
               + Nova Tag
